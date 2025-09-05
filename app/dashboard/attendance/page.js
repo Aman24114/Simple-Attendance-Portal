@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './attendance.module.css';
 
 export default function AttendancePage() {
@@ -8,11 +8,7 @@ export default function AttendancePage() {
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [stats, setStats] = useState({});
 
-  useEffect(() => {
-    fetchAttendance();
-  }, [selectedSubject]);
-
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/dashboard/attendance?subject=${selectedSubject}`);
@@ -26,7 +22,11 @@ export default function AttendancePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedSubject]);
+
+  useEffect(() => {
+    fetchAttendance();
+  }, [fetchAttendance]);
 
   const getStatusColor = (status) => {
     switch (status) {

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './mark-attendance.module.css';
 
 export default function MarkAttendancePage() {
@@ -11,17 +11,7 @@ export default function MarkAttendancePage() {
   const [session, setSession] = useState('morning');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-  useEffect(() => {
-    fetchSubjects();
-  }, []);
-
-  useEffect(() => {
-    if (selectedSubject) {
-      fetchStudents();
-    }
-  }, [selectedSubject]);
-
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     try {
       const response = await fetch('/api/dashboard/professor-subjects');
       if (response.ok) {
@@ -31,15 +21,14 @@ export default function MarkAttendancePage() {
     } catch (error) {
       console.error('Error fetching subjects:', error);
     }
-  };
+  }, []);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       const response = await fetch(`/api/dashboard/subject-students?subjectId=${selectedSubject}`);
       if (response.ok) {
         const data = await response.json();
         setStudents(data.students || []);
-        // Initialize attendance with all students as present
         const initialAttendance = {};
         data.students.forEach(student => {
           initialAttendance[student._id] = 'present';
@@ -49,7 +38,17 @@ export default function MarkAttendancePage() {
     } catch (error) {
       console.error('Error fetching students:', error);
     }
-  };
+  }, [selectedSubject]);
+
+  useEffect(() => {
+    fetchSubjects();
+  }, [fetchSubjects]);
+
+  useEffect(() => {
+    if (selectedSubject) {
+      fetchStudents();
+    }
+  }, [selectedSubject, fetchStudents]);
 
   const handleAttendanceChange = (studentId, status) => {
     setAttendance(prev => ({

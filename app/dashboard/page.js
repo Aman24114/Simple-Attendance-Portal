@@ -73,7 +73,7 @@ export default function DashboardHome() {
     <div className={styles.dashboardContent}>
       <div className={styles.welcomeSection}>
         <h1>Welcome back, {user.name}! 👋</h1>
-        <p>Here's your academic overview for this semester</p>
+        <p>Here&apos;s your academic overview for this semester</p>
       </div>
 
       <div className={styles.statsGrid}>
